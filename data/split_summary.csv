@@ -1,0 +1,4 @@
+split,NORMAL,PNEUMONIA,total,% of data,% pneumonia
+train,1128,2878,4006,68.8,71.8
+val,218,696,914,15.7,76.1
+test,233,671,904,15.5,74.2

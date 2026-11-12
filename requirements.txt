@@ -1,0 +1,9 @@
+flask>=3.0
+tensorflow>=2.16      # Keras 3 is required to load the .keras models
+numpy
+pillow
+scipy
+scikit-image
+matplotlib
+lime
+shap>=0.44

@@ -1,0 +1,36 @@
+{
+  "best_model": "Custom CNN",
+  "seed": 42,
+  "split_images": {
+    "train": 4006,
+    "val": 914,
+    "test": 904
+  },
+  "test_metrics": {
+    "Custom CNN": {
+      "Accuracy": 0.9546,
+      "Precision": 0.9674,
+      "Recall": 0.9717,
+      "Specificity": 0.9056,
+      "F1": 0.9695,
+      "ROC_AUC": 0.9869,
+      "PR_AUC": 0.9952
+    },
+    "DenseNet121": {
+      "Accuracy": 0.9491,
+      "Precision": 0.9815,
+      "Recall": 0.9493,
+      "Specificity": 0.9485,
+      "F1": 0.9652,
+      "ROC_AUC": 0.986,
+      "PR_AUC": 0.9952
+    }
+  },
+  "youden_threshold_val": 0.7632565498352051,
+  "lime_shap_mean_spearman": 0.2643527965785406,
+  "lime_shap_mean_iou_top20": 0.22782531248235896,
+  "training_minutes": {
+    "Custom CNN": 5.5,
+    "DenseNet121": 5.5
+  }
+}

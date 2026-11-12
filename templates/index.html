@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PulmoLens · Explainable Pneumonia Detection</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%2314b8a6'/><path d='M22 20c-6 6-8 18-4 24 3 4 8 2 10-2V20m14 0c6 6 8 18 4 24-3 4-8 2-10-2V20' stroke='white' stroke-width='4' fill='none' stroke-linecap='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="bg-ink-950 text-slate-200 font-sans antialiased selection:bg-lens-400/30">
+
+  <!-- scroll progress -->
+  <div id="scrollBar" class="fixed top-0 left-0 h-[3px] z-[60] bg-gradient-to-r from-lens-400 via-cyan-400 to-violet-400" style="width:0"></div>
+
+  <!-- aurora background -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div>
+    <div class="absolute inset-0 grid-bg"></div>
+  </div>
+
+  <!-- NAV -->
+  <header id="nav" class="fixed top-0 inset-x-0 z-50 transition-all duration-500">
+    <nav class="mx-auto max-w-6xl px-5 py-4 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2.5 group">
+        <span class="relative grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-lens-400 to-cyan-600 shadow-lg shadow-lens-500/30 group-hover:rotate-[10deg] transition-transform duration-500">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4C6 7 5 13 7 16c1.3 2 3 1 3-1V4M15 4c3 3 4 9 2 12-1.3 2-3 1-3-1V4"/></svg>
+        </span>
+        <span class="font-extrabold tracking-tight text-lg text-white">Pulmo<span class="text-lens-400">Lens</span></span>
+      </a>
+      <div class="hidden md:flex items-center gap-1 text-sm">
+        <a href="#analyze" class="nav-link">Analyze</a>
+        <a href="#performance" class="nav-link">Performance</a>
+        <a href="#how" class="nav-link">How it works</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+      </div>
+      <a href="#analyze" class="btn-primary text-sm !py-2 !px-4">Try it</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="relative mx-auto max-w-6xl px-5 pt-36 pb-24 md:pt-44 md:pb-32 grid md:grid-cols-[1.15fr_1fr] gap-14 items-center">
+      <div>
+        <div class="reveal inline-flex items-center gap-2 rounded-full border border-lens-400/25 bg-lens-400/10 px-3 py-1 text-xs font-medium text-lens-300">
+          <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full rounded-full bg-lens-400 opacity-75 animate-ping"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-lens-400"></span></span>
+          Explainable AI · Deep Learning Mini Project
+        </div>
+        <h1 class="reveal mt-6 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.05]" style="--d:.08s">
+          See <span class="shimmer-text">why</span> the model<br>sees pneumonia.
+        </h1>
+        <p class="reveal mt-6 text-lg text-slate-400 max-w-xl leading-relaxed" style="--d:.16s">
+          Upload a chest X-ray. A CNN classifies it in milliseconds, then LIME and SHAP light up
+          the regions that drove the decision, so the result can be checked rather than taken on trust.
+        </p>
+        <div class="reveal mt-9 flex flex-wrap gap-3" style="--d:.24s">
+          <a href="#analyze" class="btn-primary">
+            Analyze an X-ray
+            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#performance" class="btn-ghost">View results</a>
+        </div>
+        <dl class="reveal mt-12 grid grid-cols-3 gap-6 max-w-md" style="--d:.32s">
+          <div><dt class="text-xs uppercase tracking-wider text-slate-500">Test accuracy</dt><dd class="mt-1 text-2xl font-bold text-white font-mono"><span data-count="95.5" data-dec="1">0</span>%</dd></div>
+          <div><dt class="text-xs uppercase tracking-wider text-slate-500">ROC-AUC</dt><dd class="mt-1 text-2xl font-bold text-white font-mono"><span data-count="0.987" data-dec="3">0</span></dd></div>
+          <div><dt class="text-xs uppercase tracking-wider text-slate-500">Clean images</dt><dd class="mt-1 text-2xl font-bold text-white font-mono"><span data-count="5824" data-dec="0">0</span></dd></div>
+        </dl>
+      </div>
+
+      <!-- hero visual -->
+      <div class="reveal relative mx-auto w-full max-w-[400px]" style="--d:.2s">
+        <div class="absolute -inset-8 rounded-full bg-lens-500/20 blur-3xl animate-pulse-slow"></div>
+        <div class="orbit"><span></span></div>
+        <div class="orbit orbit-2"><span></span></div>
+        <div class="tilt relative aspect-square rounded-[2rem] overflow-hidden border border-white/10 bg-ink-900 shadow-2xl shadow-black/60 float">
+          <img src="{{ url_for('static', filename='samples/pneumonia_2.png') }}" alt="Chest X-ray" class="absolute inset-0 w-full h-full object-cover opacity-90">
+          <div class="absolute inset-0 hero-heat"></div>
+          <div class="scanline"></div>
+          <div class="absolute inset-x-4 bottom-4 glass rounded-2xl px-4 py-3 flex items-center justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-400">Prediction</p>
+              <p class="font-bold text-rose-300">PNEUMONIA</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[11px] uppercase tracking-wider text-slate-400">Confidence</p>
+              <p class="font-mono font-bold text-white">99.9%</p>
+            </div>
+          </div>
+          <div class="absolute top-4 left-4 flex gap-1.5">
+            <span class="chip">LIME</span><span class="chip">SHAP</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYZE -->
+    <section id="analyze" class="relative mx-auto max-w-6xl px-5 py-20 scroll-mt-20">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <p class="eyebrow">Step 1 · Diagnose</p>
+        <h2 class="section-title">Analyze a chest X-ray</h2>
+        <p class="mt-4 text-slate-400">Drop an image or pick a sample from the held-out test set. Everything runs locally on your machine.</p>
+      </div>
+
+      <div class="mt-12 grid lg:grid-cols-2 gap-6">
+        <!-- left: input -->
+        <div class="reveal card p-6 sm:p-7 flex flex-col gap-6">
+          <label id="dropzone" for="fileInput" class="dropzone group">
+            <input id="fileInput" type="file" accept="image/*" class="sr-only">
+            <div id="dzIdle" class="flex flex-col items-center text-center gap-3 py-8">
+              <div class="relative w-16 h-16 grid place-items-center rounded-2xl bg-lens-400/10 text-lens-300 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500">
+                <svg class="w-8 h-8 bob" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              </div>
+              <p class="font-semibold text-white">Drop your X-ray here</p>
+              <p class="text-sm text-slate-500">or <span class="text-lens-300 underline underline-offset-4 decoration-lens-400/40">browse files</span> · PNG, JPG up to 16 MB</p>
+            </div>
+            <div id="dzPreview" class="hidden items-center gap-4 w-full">
+              <img id="dzThumb" class="w-16 h-16 rounded-xl object-cover border border-white/10" alt="">
+              <div class="min-w-0 flex-1 text-left">
+                <p id="dzName" class="font-medium text-white truncate"></p>
+                <p class="text-xs text-slate-500">Click or drop to replace</p>
+              </div>
+              <svg class="w-6 h-6 text-lens-400 pop-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+            </div>
+          </label>
+
+          <div>
+            <p class="label">Or try a sample</p>
+            <div id="samples" class="grid grid-cols-4 gap-3">
+              <button class="sample" data-src="{{ url_for('static', filename='samples/pneumonia_1.png') }}" data-name="Pneumonia A"><img src="{{ url_for('static', filename='samples/pneumonia_1.png') }}" alt=""><span>Pneumonia</span></button>
+              <button class="sample" data-src="{{ url_for('static', filename='samples/normal_1.png') }}" data-name="Normal A"><img src="{{ url_for('static', filename='samples/normal_1.png') }}" alt=""><span>Normal</span></button>
+              <button class="sample" data-src="{{ url_for('static', filename='samples/normal_2.png') }}" data-name="Normal B"><img src="{{ url_for('static', filename='samples/normal_2.png') }}" alt=""><span>Normal</span></button>
+              <button class="sample" data-src="{{ url_for('static', filename='samples/fp_1.png') }}" data-name="Tricky case"><img src="{{ url_for('static', filename='samples/fp_1.png') }}" alt=""><span>Tricky</span></button>
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              <p class="label">Model</p>
+              <div class="seg" data-name="model">
+                <span class="seg-pill"></span>
+                <button data-value="custom_cnn" class="active">Custom CNN</button>
+                <button data-value="densenet121">DenseNet121</button>
+              </div>
+            </div>
+            <div>
+              <p class="label flex items-center gap-1.5">Threshold
+                <span class="tip" data-tip="Youden's J threshold ({{ youden }}) was tuned on validation data: fewer false alarms, slightly lower recall.">?</span>
+              </p>
+              <div class="seg" data-name="threshold">
+                <span class="seg-pill"></span>
+                <button data-value="default" class="active">0.50</button>
+                <button data-value="youden">Youden {{ youden }}</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="label">Explanation detail</p>
+            <div class="seg seg-3" data-name="preset">
+              <span class="seg-pill"></span>
+              <button data-value="fast">Fast</button>
+              <button data-value="balanced" class="active">Balanced</button>
+              <button data-value="detailed">Detailed</button>
+            </div>
+          </div>
+
+          <button id="analyzeBtn" class="btn-primary w-full justify-center !py-3.5 text-base" disabled>
+            <span class="btn-label">Run diagnosis</span>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </button>
+        </div>
+
+        <!-- right: result -->
+        <div class="reveal card p-6 sm:p-7 relative overflow-hidden min-h-[520px]" style="--d:.1s">
+          <!-- idle -->
+          <div id="resIdle" class="absolute inset-0 grid place-items-center p-8 text-center">
+            <div>
+              <div class="relative mx-auto w-40 h-40">
+                <div class="absolute inset-0 rounded-full border border-dashed border-lens-400/30 spin-slow"></div>
+                <div class="absolute inset-5 rounded-full border border-white/5"></div>
+                <div class="absolute inset-0 grid place-items-center">
+                  <svg class="w-16 h-16 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M9 4C6 7 5 13 7 16c1.3 2 3 1 3-1V4M15 4c3 3 4 9 2 12-1.3 2-3 1-3-1V4M12 3v9"/></svg>
+                </div>
+              </div>
+              <p class="mt-6 font-semibold text-white">Waiting for an image</p>
+              <p class="mt-1 text-sm text-slate-500">Your prediction and confidence will appear here.</p>
+            </div>
+          </div>
+
+          <!-- loading / result -->
+          <div id="resActive" class="hidden h-full flex-col gap-6">
+            <div class="relative mx-auto w-full max-w-[300px] aspect-square rounded-2xl overflow-hidden border border-white/10 bg-black">
+              <img id="resImg" class="w-full h-full object-cover" alt="Uploaded X-ray">
+              <div id="scanFx" class="absolute inset-0">
+                <div class="scanline"></div>
+                <div class="absolute inset-0 bg-lens-400/5"></div>
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+              </div>
+            </div>
+
+            <div id="resLoading" class="text-center">
+              <p class="font-semibold text-white">Analyzing<span class="dots"></span></p>
+              <p class="text-sm text-slate-500 mt-1">Preprocessing → 224×224 → CNN inference</p>
+            </div>
+
+            <div id="resOut" class="hidden grid grid-cols-[auto_1fr] gap-6 items-center">
+              <div class="relative w-36 h-36">
+                <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+                  <circle cx="60" cy="60" r="52" class="fill-none stroke-white/5" stroke-width="10"/>
+                  <circle id="gauge" cx="60" cy="60" r="52" class="fill-none gauge" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                </svg>
+                <div class="absolute inset-0 grid place-items-center text-center">
+                  <div>
+                    <p class="font-mono text-3xl font-bold text-white"><span id="gaugeVal">0</span><span class="text-lg text-slate-400">%</span></p>
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500">P(pneumonia)</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <span id="resBadge" class="badge">—</span>
+                <p class="mt-3 text-sm text-slate-400 leading-relaxed" id="resText"></p>
+                <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                  <span class="meta" id="resModel"></span>
+                  <span class="meta" id="resThr"></span>
+                  <span class="meta" id="resLat"></span>
+                </div>
+              </div>
+            </div>
+
+            <a id="toXai" href="#xai" class="hidden btn-ghost justify-center w-full">
+              See why
+              <svg class="w-4 h-4 bob" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- XAI -->
+    <section id="xai" class="hidden relative mx-auto max-w-6xl px-5 py-20 scroll-mt-20">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <p class="eyebrow">Step 2 · Explain</p>
+        <h2 class="section-title">What the model looked at</h2>
+        <p class="mt-4 text-slate-400">Two independent methods, compared side by side. If both point at the lungs, trust grows; if they disagree or point at labels and edges, be sceptical.</p>
+      </div>
+
+      <div class="reveal mt-10 flex justify-center">
+        <div class="seg seg-3 !w-auto" id="xaiTabs" data-name="xaitab">
+          <span class="seg-pill"></span>
+          <button data-value="lime" class="active px-5">LIME</button>
+          <button data-value="shap" class="px-5">SHAP</button>
+          <button data-value="both" class="px-6">Side by side</button>
+        </div>
+      </div>
+
+      <!-- single view -->
+      <div id="xaiSingle" class="reveal mt-8 grid lg:grid-cols-[1fr_1fr] gap-6 items-start">
+        <div class="card p-5">
+          <div id="viewer" class="viewer">
+            <img id="vBase" alt="">
+            <div id="vOverlayWrap" class="absolute inset-0"><img id="vOverlay" alt=""></div>
+            <div id="vHandle" class="v-handle"><span></span></div>
+            <div id="vLoading" class="absolute inset-0 grid place-items-center bg-ink-950/70 backdrop-blur-sm">
+              <div class="text-center">
+                <div class="loader mx-auto"></div>
+                <p class="mt-4 text-sm text-slate-300" id="vLoadingText">Computing explanation…</p>
+                <p class="mt-1 text-xs text-slate-500">This can take 10–40 s on CPU</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 grid sm:grid-cols-2 gap-5">
+            <div>
+              <div class="flex justify-between text-xs text-slate-400 mb-2"><span>Heatmap opacity</span><span id="opVal" class="font-mono">80%</span></div>
+              <input id="opacity" type="range" min="0" max="100" value="80" class="range">
+            </div>
+            <div id="limeModeWrap">
+              <p class="text-xs text-slate-400 mb-2">LIME view</p>
+              <div class="seg !h-9" data-name="limemode">
+                <span class="seg-pill"></span>
+                <button data-value="heat" class="active text-xs">Heatmap</button>
+                <button data-value="outline" class="text-xs">Top regions</button>
+              </div>
+            </div>
+          </div>
+          <p class="mt-4 text-xs text-slate-500 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>
+            Drag the handle across the image to wipe between the X-ray and its explanation.
+          </p>
+        </div>
+
+        <div class="card p-6 flex flex-col gap-6">
+          <div>
+            <h3 id="xTitle" class="text-xl font-bold text-white">LIME · Local surrogate</h3>
+            <p id="xDesc" class="mt-2 text-sm text-slate-400 leading-relaxed"></p>
+          </div>
+          <div id="legend" class="flex flex-wrap gap-4 text-xs"></div>
+          <div id="xDetail" class="flex-1"></div>
+          <div id="xStats" class="grid grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- side-by-side -->
+      <div id="xaiBoth" class="hidden mt-8">
+        <div class="grid sm:grid-cols-3 gap-5">
+          <figure class="card p-3 tri"><div class="tri-img"><img id="tOrig" alt=""></div><figcaption>Input X-ray</figcaption></figure>
+          <figure class="card p-3 tri"><div class="tri-img"><img id="tLimeB" alt=""><img id="tLime" class="ov" alt=""></div><figcaption>LIME superpixels</figcaption></figure>
+          <figure class="card p-3 tri"><div class="tri-img"><img id="tShapB" alt=""><img id="tShap" class="ov" alt=""></div><figcaption>SHAP attribution</figcaption></figure>
+        </div>
+        <div class="mt-6 card p-6 grid md:grid-cols-[1fr_auto_auto] gap-8 items-center">
+          <div>
+            <h3 class="text-lg font-bold text-white">Do the two methods agree?</h3>
+            <p class="mt-2 text-sm text-slate-400 leading-relaxed">Spearman ρ compares the full pixel rankings. IoU checks the overlap of each method's top 20% most-important pixels. Across the test set this project measured ρ ≈ <span class="font-mono text-slate-300" id="projRho"></span> and IoU ≈ <span class="font-mono text-slate-300" id="projIou"></span>, so moderate agreement is normal.</p>
+          </div>
+          <div class="ring-mini" id="agRho"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="33"/><circle class="fg" cx="40" cy="40" r="33"/></svg><div><b>—</b><span>Spearman ρ</span></div></div>
+          <div class="ring-mini" id="agIou"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="33"/><circle class="fg" cx="40" cy="40" r="33"/></svg><div><b>—</b><span>IoU top-20%</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section id="performance" class="relative mx-auto max-w-6xl px-5 py-24 scroll-mt-20">
+      <div class="reveal flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="max-w-xl">
+          <p class="eyebrow">Evaluation</p>
+          <h2 class="section-title !text-left">How well it performs</h2>
+          <p class="mt-4 text-slate-400">Held-out test set of <span class="font-mono text-slate-300" id="testN">904</span> images, after removing 5,888 exact duplicates and re-splitting by patient to stop leakage.</p>
+        </div>
+        <div class="seg !w-auto" data-name="perfmodel">
+          <span class="seg-pill"></span>
+          <button data-value="Custom CNN" class="active px-5">Custom CNN</button>
+          <button data-value="DenseNet121" class="px-5">DenseNet121</button>
+        </div>
+      </div>
+
+      <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4" id="metricCards"></div>
+
+      <div class="mt-6 grid lg:grid-cols-[1fr_1.4fr] gap-6">
+        <div class="reveal card p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white">Confusion matrix</h3>
+            <span class="text-xs text-slate-500">test split</span>
+          </div>
+          <div class="mt-6 grid grid-cols-[auto_1fr_1fr] gap-2 text-sm" id="cm"></div>
+        </div>
+        <div class="reveal card p-6" style="--d:.1s">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <h3 class="font-bold text-white">Training curves</h3>
+            <div class="seg !h-9 !w-auto" data-name="curve">
+              <span class="seg-pill"></span>
+              <button data-value="accuracy" class="active text-xs px-3">Accuracy</button>
+              <button data-value="loss" class="text-xs px-3">Loss</button>
+              <button data-value="auc" class="text-xs px-3">AUC</button>
+            </div>
+          </div>
+          <div class="mt-4 h-[260px]"><canvas id="curveChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section id="how" class="relative mx-auto max-w-6xl px-5 py-24 scroll-mt-20">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <p class="eyebrow">Pipeline</p>
+        <h2 class="section-title">How it works</h2>
+      </div>
+      <ol class="pipeline mt-14 grid md:grid-cols-5 gap-6 relative">
+        <li class="reveal step" style="--d:0s"><span class="step-dot">1</span><h4>Clean data</h4><p>11,712 Kaggle X-rays deduplicated to 5,824 unique images, split 69/16/15 by patient.</p></li>
+        <li class="reveal step" style="--d:.08s"><span class="step-dot">2</span><h4>Preprocess</h4><p>Grayscale, resized to 224×224, scaled to [0, 1], light augmentation in training.</p></li>
+        <li class="reveal step" style="--d:.16s"><span class="step-dot">3</span><h4>Train CNNs</h4><p>A custom 4-block CNN (8 conv layers) and an ImageNet DenseNet121, fine-tuned in two stages.</p></li>
+        <li class="reveal step" style="--d:.24s"><span class="step-dot">4</span><h4>Predict</h4><p>Sigmoid output gives P(pneumonia), compared to a 0.5 or Youden threshold.</p></li>
+        <li class="reveal step" style="--d:.32s"><span class="step-dot">5</span><h4>Explain</h4><p>LIME perturbs superpixels; SHAP distributes the prediction across image regions.</p></li>
+      </ol>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="relative py-24 scroll-mt-20">
+      <div class="mx-auto max-w-6xl px-5 reveal flex items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">Project figures</p>
+          <h2 class="section-title !text-left">From the notebook</h2>
+        </div>
+        <div class="hidden sm:flex gap-2">
+          <button class="icon-btn" data-scroll="-1" aria-label="Scroll left"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="icon-btn" data-scroll="1" aria-label="Scroll right"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+      <div id="strip" class="strip mt-10"></div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/5 py-10">
+    <div class="mx-auto max-w-6xl px-5 flex flex-col md:flex-row gap-4 justify-between text-sm text-slate-500">
+      <p><span class="text-slate-300 font-semibold">PulmoLens</span> · Explainable AI for pneumonia detection · Deep Learning mini project</p>
+      <p class="max-w-md">For education and research only. Not a medical device; it does not replace a radiologist's diagnosis.</p>
+    </div>
+  </footer>
+
+  <!-- lightbox -->
+  <div id="lightbox" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-10">
+    <button id="lbClose" class="absolute top-5 right-5 icon-btn" aria-label="Close"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <figure class="lb-inner max-w-6xl w-full">
+      <img id="lbImg" class="w-full max-h-[78vh] object-contain rounded-xl bg-white" alt="">
+      <figcaption id="lbCap" class="mt-4 text-center text-slate-300"></figcaption>
+    </figure>
+  </div>
+
+  <!-- toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
+  <script>window.STATIC = "{{ url_for('static', filename='') }}";</script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

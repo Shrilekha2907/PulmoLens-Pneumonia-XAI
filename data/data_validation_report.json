@@ -1,0 +1,17 @@
+{
+  "total_before": 11712,
+  "corrupted": 0,
+  "removed_total": 5888,
+  "removed_by_reason": {
+    "exact duplicate": 5888
+  },
+  "total_after": 5824,
+  "cross_split_exact_duplicate_groups": 0,
+  "near_duplicate_groups": 185,
+  "min_width": 384,
+  "min_height": 127,
+  "class_counts_after": {
+    "NORMAL": 1579,
+    "PNEUMONIA": 4245
+  }
+}
